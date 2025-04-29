@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { useProofOfPresence, EventInfo } from '@/hooks/useProofOfPresence';
 import RegisterPresenceDialog from '@/components/RegisterPresenceDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ const EventDetail = () => {
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (allEvents && id) {
@@ -49,13 +51,14 @@ const EventDetail = () => {
       };
 
       try {
-        // Check if Web Share API is available
         if (navigator.share) {
           await navigator.share(shareData);
         } else {
-          // Fallback for browsers that don't support Web Share API
           await navigator.clipboard.writeText(window.location.href);
-          alert('Link copied to clipboard!');
+          toast({
+            title: "Link copied",
+            description: "Link copied to clipboard!"
+          });
         }
       } catch (err) {
         console.error('Error sharing:', err);

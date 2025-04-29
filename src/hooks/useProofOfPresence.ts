@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from 'react';
 import { useContractRead, useContractWrite, useAccount, useWaitForTransaction } from 'wagmi';
-import { parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contractAbi';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,7 +54,7 @@ export const useProofOfPresence = () => {
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
     functionName: 'getUserPresences',
-    args: [walletAddress as `0x${string}`],
+    args: walletAddress ? [walletAddress] : undefined,
     enabled: !!walletAddress,
     watch: true,
   });
@@ -150,22 +149,6 @@ export const useProofOfPresence = () => {
     },
   });
 
-  // Get event info
-  const getEventInfo = async (locationId: bigint) => {
-    try {
-      const { data } = await useContractRead({
-        address: CONTRACT_ADDRESS as `0x${string}`,
-        abi: CONTRACT_ABI,
-        functionName: 'getEventInfo',
-        args: [locationId]
-      });
-      return data as EventInfo;
-    } catch (error) {
-      console.error("Error fetching event info:", error);
-      return null;
-    }
-  };
-
   return {
     isOwner,
     allEvents: allEvents as EventInfo[] | undefined,
@@ -179,7 +162,11 @@ export const useProofOfPresence = () => {
         });
         return;
       }
-      addLocation?.({ args: [locationName, eventDescription, BigInt(eventDate)] });
+      if (addLocation) {
+        addLocation({ 
+          args: [locationName, eventDescription, BigInt(eventDate)] 
+        });
+      }
     },
     removeEvent: (locationId: bigint) => {
       if (!isConnected) {
@@ -190,7 +177,11 @@ export const useProofOfPresence = () => {
         });
         return;
       }
-      removeLocation?.({ args: [locationId] });
+      if (removeLocation) {
+        removeLocation({ 
+          args: [locationId] 
+        });
+      }
     },
     registerPresence: (locationId: bigint, metadata: string) => {
       if (!isConnected) {
@@ -201,9 +192,12 @@ export const useProofOfPresence = () => {
         });
         return;
       }
-      registerPresence?.({ args: [locationId, metadata] });
+      if (registerPresence) {
+        registerPresence({ 
+          args: [locationId, metadata] 
+        });
+      }
     },
-    getEventInfo,
     isAddingEvent: isAddingLocation || isAddLocationPending,
     isRemovingEvent: isRemovingLocation || isRemoveLocationPending,
     isRegisteringPresence: isRegisteringPresence || isRegisterPresencePending,
