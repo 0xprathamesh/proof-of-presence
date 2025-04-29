@@ -1,266 +1,149 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { useProofOfPresence, EventInfo } from '@/hooks/useProofOfPresence';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, MapPin, Users, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar, MapPin, Users } from 'lucide-react';
+import { useProofOfPresence, EventInfo } from '@/hooks/useProofOfPresence';
 import RegisterPresenceDialog from '@/components/RegisterPresenceDialog';
-import { ethers } from 'ethers';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/contractAbi';
-import { useToast } from '@/hooks/use-toast';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { 
-    allEvents, 
-    userPresences,
-    registerPresence,
-    isRegisteringPresence
-  } = useProofOfPresence();
-  const { toast } = useToast();
-  
+  const { allEvents, userPresences, registerPresence, isRegisteringPresence } = useProofOfPresence();
   const [event, setEvent] = useState<EventInfo | null>(null);
-  const [attendees, setAttendees] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
-  
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   useEffect(() => {
     if (allEvents && id) {
-      const foundEvent = allEvents.find(e => e.locationId.toString() === id);
+      const locationId = BigInt(id);
+      const foundEvent = allEvents.find(e => e.locationId === locationId);
       if (foundEvent) {
         setEvent(foundEvent);
-        fetchAttendees(foundEvent.locationId);
-      } else {
-        toast({
-          title: "Event not found",
-          description: "The requested event could not be found",
-          variant: "destructive",
-        });
       }
     }
-  }, [allEvents, id, toast]);
-  
-  const fetchAttendees = async (locationId: bigint) => {
-    try {
-      // This is a read-only operation, so we're using a provider directly
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      
-      const attendeeList = await contract.getLocationUsers(locationId);
-      setAttendees(attendeeList);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching attendees:", error);
-      setIsLoading(false);
+  }, [allEvents, id]);
+
+  useEffect(() => {
+    if (userPresences && event) {
+      const found = userPresences.find(p => p.locationId === event.locationId);
+      setIsRegistered(!!found);
     }
-  };
-  
-  const isRegisteredForEvent = () => {
-    if (!userPresences || !event) return false;
-    return userPresences.some(presence => presence.locationId === event.locationId);
-  };
-  
-  const handleRegisterPresence = (metadata: string) => {
+  }, [userPresences, event]);
+
+  const handleRegister = (metadata: string) => {
     if (event) {
       registerPresence(event.locationId, metadata);
-      setIsRegisterDialogOpen(false);
+      setIsDialogOpen(false);
     }
   };
-  
-  if (isLoading || !event) {
+
+  const handleShare = async () => {
+    if (event) {
+      const shareData = {
+        title: `${event.locationName} - Proof of Presence`,
+        text: `Join me at ${event.locationName}: ${event.eventDescription}`,
+        url: window.location.href,
+      };
+
+      try {
+        // Check if Web Share API is available
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          // Fallback for browsers that don't support Web Share API
+          await navigator.clipboard.writeText(window.location.href);
+          alert('Link copied to clipboard!');
+        }
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    }
+  };
+
+  if (!event) {
     return (
       <Layout>
-        <div className="mb-4">
-          <Button asChild variant="ghost" className="mb-8">
-            <Link to="/" className="flex items-center">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Events
-            </Link>
-          </Button>
-          
-          <Skeleton className="h-10 w-3/4 mb-2" />
-          <Skeleton className="h-6 w-1/2 mb-6" />
-          
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-8 w-1/3 mb-2" />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <h2 className="text-2xl font-bold mb-4">Event not found</h2>
+          <p className="text-gray-500">The event you're looking for doesn't exist or has been removed.</p>
         </div>
       </Layout>
     );
   }
-  
+
   const eventDate = new Date(Number(event.eventDate) * 1000);
   const isPast = eventDate < new Date();
-  const isRegistered = isRegisteredForEvent();
-  
+
   return (
     <Layout>
-      <div className="mb-8">
-        <Button asChild variant="ghost" className="mb-6">
-          <Link to="/" className="flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Events
-          </Link>
-        </Button>
-        
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{event.locationName}</h1>
-            <p className="text-gray-500 flex items-center mt-1">
-              <MapPin className="mr-1 h-4 w-4" />
-              Location ID: {event.locationId.toString()}
-            </p>
-          </div>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">{event.locationName}</h1>
           
-          <Badge className={isPast ? "bg-gray-500" : "bg-brand-purple"}>
-            {isPast ? "Past Event" : "Upcoming"}
-          </Badge>
+          {isPast ? (
+            <Badge variant="secondary">Past Event</Badge>
+          ) : (
+            <Badge className="bg-brand-purple">Upcoming</Badge>
+          )}
         </div>
-      </div>
-      
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Event Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 text-gray-700">
-                <Calendar className="h-5 w-5 text-brand-purple" />
-                <span>Date: {eventDate.toLocaleDateString()}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-gray-700">
-                <Clock className="h-5 w-5 text-brand-purple" />
-                <span>Time: {eventDate.toLocaleTimeString()}</span>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-800 mb-2">Description</h3>
-                <p className="text-gray-700">{event.eventDescription}</p>
-              </div>
-              
-              {isRegistered && (
-                <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                  <p className="text-green-700 font-medium flex items-center">
-                    <Users className="mr-2 h-5 w-5" />
-                    You're registered for this event
-                  </p>
-                </div>
-              )}
-            </CardContent>
-            
-            <CardFooter className="border-t pt-4">
-              {!isRegistered && !isPast && (
-                <Button 
-                  onClick={() => setIsRegisterDialogOpen(true)}
-                  className="bg-brand-purple hover:bg-brand-purple/90"
-                  disabled={isRegisteringPresence}
-                >
-                  {isRegisteringPresence ? 'Processing...' : 'Register Presence'}
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
+        
+        <Card className="mb-8">
+          <CardHeader className="bg-brand-lavender/30">
+            <CardTitle className="text-xl">Event Details</CardTitle>
+            <CardDescription className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span>Location ID: {event.locationId.toString()}</span>
+            </CardDescription>
+          </CardHeader>
           
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <Calendar className="h-4 w-4" />
+              <span>{eventDate.toLocaleString()}</span>
+            </div>
+            
+            <div className="prose prose-sm max-w-none mb-6">
+              <h3 className="text-lg font-semibold mb-2">Description</h3>
+              <p>{event.eventDescription}</p>
+            </div>
+            
+            {isRegistered && (
+              <div className="flex items-center gap-2 text-green-600 mt-4 p-3 bg-green-50 rounded-md">
                 <Users className="h-5 w-5" />
-                Attendees
-                <Badge variant="outline" className="ml-2">
-                  {attendees.length}
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                People who registered for this event
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {attendees.length === 0 ? (
-                <p className="text-gray-500">No attendees registered yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {attendees.map((address, index) => (
-                    <div 
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                    >
-                      <span className="text-sm font-mono">
-                        {address.slice(0, 6)}...{address.slice(-4)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <span className="font-medium">You're registered for this event</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Event Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Event ID</h3>
-                <p>{event.locationId.toString()}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                <p>{eventDate.toLocaleDateString()}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Time</h3>
-                <p>{eventDate.toLocaleTimeString()}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                <p>{isPast ? "Completed" : "Upcoming"}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Attendees</h3>
-                <p>{attendees.length}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Your Status</h3>
-                <p>{isRegistered ? "Registered" : "Not Registered"}</p>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="border-t pt-4">
-              <Link to="/history" className="w-full">
-                <Button variant="outline" className="w-full">
-                  View Your History
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <Button 
+            variant="outline"
+            onClick={handleShare}
+          >
+            Share Event
+          </Button>
+          
+          {!isRegistered && !isPast && (
+            <Button 
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-brand-purple hover:bg-brand-purple/90"
+              disabled={isRegisteringPresence}
+            >
+              {isRegisteringPresence ? 'Processing...' : 'Register Presence'}
+            </Button>
+          )}
         </div>
       </div>
       
-      <RegisterPresenceDialog
+      <RegisterPresenceDialog 
         event={event}
-        isOpen={isRegisterDialogOpen}
-        onOpenChange={setIsRegisterDialogOpen}
-        onRegister={handleRegisterPresence}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onRegister={handleRegister}
         isRegistering={isRegisteringPresence}
       />
     </Layout>
