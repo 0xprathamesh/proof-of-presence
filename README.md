@@ -1,4 +1,6 @@
 # Proof of Presence dApp
+<img width="1680" alt="Screenshot 2025-04-29 at 3 33 26 PM" src="https://github.com/user-attachments/assets/ce1dd791-a80f-435b-a7a8-015134b9ef32" />
+
 
 A decentralized application for tracking and verifying event attendance using blockchain technology.
 
