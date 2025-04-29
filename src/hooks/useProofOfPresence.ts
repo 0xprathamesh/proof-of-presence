@@ -27,7 +27,7 @@ export const useProofOfPresence = () => {
   
   // Read owner address from contract
   const { data: ownerAddress } = useContractRead({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'owner',
   });
@@ -43,7 +43,7 @@ export const useProofOfPresence = () => {
 
   // Get all events
   const { data: allEvents, refetch: refetchEvents } = useContractRead({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getAllEvents',
     watch: true,
@@ -51,7 +51,7 @@ export const useProofOfPresence = () => {
 
   // Get user presences
   const { data: userPresences, refetch: refetchPresences } = useContractRead({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'getUserPresences',
     args: walletAddress ? [walletAddress] : undefined,
@@ -66,7 +66,7 @@ export const useProofOfPresence = () => {
     isLoading: isAddingLocation,
     error: addLocationError
   } = useContractWrite({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'addLocation',
   });
@@ -96,7 +96,7 @@ export const useProofOfPresence = () => {
     isLoading: isRemovingLocation,
     error: removeLocationError
   } = useContractWrite({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'removeLocation',
   });
@@ -126,7 +126,7 @@ export const useProofOfPresence = () => {
     isLoading: isRegisteringPresence,
     error: registerPresenceError
   } = useContractWrite({
-    address: CONTRACT_ADDRESS as `0x${string}`,
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'registerPresence',
   });
@@ -163,8 +163,8 @@ export const useProofOfPresence = () => {
         return;
       }
       if (addLocation) {
-        addLocation({ 
-          args: [locationName, eventDescription, BigInt(eventDate)] 
+        addLocation({
+          args: [locationName, eventDescription, BigInt(eventDate)]
         });
       }
     },
@@ -178,8 +178,8 @@ export const useProofOfPresence = () => {
         return;
       }
       if (removeLocation) {
-        removeLocation({ 
-          args: [locationId] 
+        removeLocation({
+          args: [locationId]
         });
       }
     },
@@ -193,8 +193,8 @@ export const useProofOfPresence = () => {
         return;
       }
       if (registerPresence) {
-        registerPresence({ 
-          args: [locationId, metadata] 
+        registerPresence({
+          args: [locationId, metadata]
         });
       }
     },

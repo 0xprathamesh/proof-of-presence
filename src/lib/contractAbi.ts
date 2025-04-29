@@ -1,5 +1,4 @@
-
-export const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with actual contract address when deployed
+export const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000" as const; // Replace with actual contract address when deployed
 
 export const CONTRACT_ABI = [
   {
@@ -511,4 +510,4 @@ export const CONTRACT_ABI = [
     "stateMutability": "view",
     "type": "function"
   }
-];
+] as const;
