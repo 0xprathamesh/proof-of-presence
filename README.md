@@ -1,73 +1,95 @@
-# Welcome to your Lovable project
+# Proof of Presence dApp
 
-## Project info
+A decentralized application for tracking and verifying event attendance using blockchain technology.
 
-**URL**: https://lovable.dev/projects/3ea2b490-18e3-4aad-9fb9-13e95114d2c3
+## Overview
 
-## How can I edit this code?
+Proof of Presence is a Web3 application that allows users to:
 
-There are several ways of editing your application.
+- Register their presence at events
+- Track their attendance history
+- View upcoming and past events
+- Manage events (for administrators)
 
-**Use Lovable**
+The application uses blockchain technology to provide immutable proof of attendance, making it ideal for conferences, meetups, and other events where attendance verification is important.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3ea2b490-18e3-4aad-9fb9-13e95114d2c3) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Event Registration**: Users can register their presence at events
+- **Attendance History**: View your complete attendance history
+- **Event Management**: Administrators can create and manage events
+- **Web3 Integration**: Built with RainbowKit and Wagmi for seamless Web3 integration
+- **Mobile Responsive**: Fully responsive design for both desktop and mobile devices
 
-**Use your preferred IDE**
+## Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**:
+  - React
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - shadcn/ui
+- **Web3**:
+  - RainbowKit
+  - Wagmi
+  - Ethers.js
+- **Blockchain**:
+  - Ethereum (Mainnet)
+  - Sepolia Testnet
+  - XDC Testnet
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- A Web3 wallet (like MetaMask)
+
+### Installation
+
+1. Clone the repository:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone <repository-url>
+cd presence-proof-tracker-dapp
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Usage
 
-**Use GitHub Codespaces**
+1. Connect your Web3 wallet using the "Connect Wallet" button
+2. Browse available events
+3. Register your presence at events
+4. View your attendance history in the "My History" section
+5. (For administrators) Manage events through the admin panel
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Smart Contract
 
-## What technologies are used for this project?
+The application interacts with a smart contract that handles:
 
-This project is built with:
+- Event creation and management
+- Presence registration
+- Attendance tracking
+- User history
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contributing
 
-## How can I deploy this project?
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Simply open [Lovable](https://lovable.dev/projects/3ea2b490-18e3-4aad-9fb9-13e95114d2c3) and click on Share -> Publish.
+## License
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License - see the LICENSE file for details.

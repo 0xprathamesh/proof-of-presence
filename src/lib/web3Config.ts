@@ -8,11 +8,11 @@ import {
   ConnectButton,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet, sepolia } from 'wagmi/chains';
+import { mainnet, sepolia,xdcTestnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 const { chains, publicClient } = configureChains(
-  [mainnet, sepolia],
+  [mainnet, sepolia,xdcTestnet],
   [publicProvider()]
 );
 
