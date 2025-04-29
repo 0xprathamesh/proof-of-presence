@@ -28,4 +28,4 @@ export const wagmiConfig = createConfig({
   publicClient,
 });
 
-export { chains, ConnectButton };
+export { WagmiConfig, RainbowKitProvider, chains, ConnectButton };

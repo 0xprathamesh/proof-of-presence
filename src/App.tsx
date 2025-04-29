@@ -10,9 +10,7 @@ import Admin from "./pages/Admin";
 import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
 
-import { WagmiConfig } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { chains, wagmiConfig } from './lib/web3Config';
+import { WagmiConfig, RainbowKitProvider, chains, wagmiConfig } from './lib/web3Config';
 
 const queryClient = new QueryClient();
 
